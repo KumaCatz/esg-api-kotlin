@@ -1,11 +1,16 @@
-version: '3.8'
-
 services:
   mongo:
     image: mongo:7
     container_name: mongo
     ports:
       - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: para-uma-cidade-mais-verde
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/27017'"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   app:
     build: .
@@ -13,6 +18,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     environment:
-      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/para-uma-cidade-mais-verde
+      SPRING_MONGODB_URI: mongodb://mongo:27017/para-uma-cidade-mais-verde
+      SERVER_PORT: 8080
