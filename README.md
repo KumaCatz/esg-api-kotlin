@@ -1,205 +1,127 @@
-# Projeto - Cidades ESG Inteligentes
+ESG API – Sistema de Coletas
 
-## Descricao
-
-Este projeto consiste em uma API desenvolvida com **Java Spring Boot** com foco em práticas de **ESG (Environmental, Social and Governance)**.
-A aplicação simula o gerenciamento de dados urbanos sustentáveis, como coleta de lixo, consumo de energia, emissão de carbono, parcerias e projetos sociais.
-
-O objetivo principal foi aplicar conceitos de **DevOps**, incluindo **CI/CD, containerização e orquestração**, simulando um ambiente de produção real.
+API desenvolvida para gerenciamento de coletas, com foco em boas práticas de backend, testes automatizados e containerização com Docker.
 
 ---
 
-## Como executar localmente com Docker
+Tecnologias utilizadas
 
-### Pre-requisitos
+**Backend**
+- Kotlin
+- Spring Boot
+- MongoDB
+- Gradle
 
-* Docker instalado
-* Docker Compose instalado
-* Java (para build local, opcional)
+**Testes**
+- Java
+- Maven
+- Cucumber (BDD)
+- Rest Assured
+- JUnit
+
+**Infraestrutura**
+- Docker
+- Docker Compose
+- GitHub Actions (CI)
 
 ---
 
-### Passo a passo
+Estrutura do projeto
 
-1. Gerar o build do projeto:
+esg-api-kotlin/  
+├── src/ (backend Kotlin)  
+├── build.gradle.kts  
+├── docker-compose.yml  
+├── Dockerfile  
 
-```bash
+testes-automatizados/  
+├── src/test/java (testes Maven)  
+├── src/test/resources  
+├── pom.xml  
+
+---
+
+Como rodar o backend
+
+Build do projeto:
 ./gradlew build
-```
 
----
-
-2. Subir os containers:
-
-```bash
+Subir containers:
 docker-compose up --build
-```
 
 ---
 
-3. Acessar a API:
-
-```text
-http://localhost:8080/coletas
-```
+Acesso à API
+http://localhost:8080
 
 ---
 
-### Banco de dados
+Como rodar os testes
 
-* MongoDB rodando em container Docker
-* Porta: `27017`
-* Database utilizada: `para-uma-cidade-mais-verde`
-* URI para acessar pelo MongoDB Compass ou outra ferramenta:
+Dentro da pasta de testes:
 
-```text
-mongodb://localhost:27017/para-uma-cidade-mais-verde
-```
-
-O MongoDB so mostra a database depois que ela tem pelo menos uma collection com dados. Para criar um registro de teste e fazer a database aparecer, acesse:
-
-```text
-http://localhost:8080/coletas/teste
-```
-
-Depois disso, a collection `coleta_lixo` aparecera dentro da database `para-uma-cidade-mais-verde`.
+mvn clean test
 
 ---
 
-## Pipeline CI/CD
+Fluxo completo
 
-Foi implementado um pipeline utilizando **GitHub Actions**.
+1. Build do backend:
+./gradlew build
 
-### Etapas do pipeline:
+2. Subir aplicação:
+docker-compose up --build
 
-1. **Checkout do código**
-2. **Configuração do Java (JDK 21)**
-3. **Build do projeto com Gradle**
-4. **Criação da imagem Docker**
-5. **Execução do container**
-
-O pipeline é acionado automaticamente a cada `push` na branch `main`.
+3. Rodar testes:
+mvn clean test
 
 ---
 
-## Containerizacao
+Testes implementados
 
-A aplicação foi containerizada utilizando Docker.
-
-### Estratégias adotadas:
-
-* Uso de imagem base leve (`eclipse-temurin`)
-* Empacotamento da aplicação como `.jar`
-* Execução via `java -jar`
-* Exposição da porta `8080`
-
-### Dockerfile
-
-```dockerfile
-FROM eclipse-temurin:21-jdk-jammy
-
-WORKDIR /app
-
-COPY build/libs/*.jar app.jar
-
-EXPOSE 8080
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
-```
+- Cadastro de coletas
+- Consulta por ID e listagem
+- Atualização de coletas
+- Deleção de coletas
+- Validação de status code
+- Validação de corpo de resposta
+- Testes de contrato (JSON Schema)
 
 ---
 
-## Orquestracao (Docker Compose)
+Docker
 
-Foi utilizado **Docker Compose** para subir a aplicação junto com o banco de dados MongoDB.
+Subir todos os serviços:
 
-### docker-compose.yml
+docker-compose up --build
 
-```yaml
-services:
-  mongo:
-    image: mongo:7
-    container_name: mongo
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_DATABASE: para-uma-cidade-mais-verde
-    healthcheck:
-      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/27017'"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-
-  app:
-    build: .
-    container_name: esg-api
-    ports:
-      - "8080:8080"
-    depends_on:
-      mongo:
-        condition: service_healthy
-    environment:
-      SPRING_MONGODB_URI: mongodb://mongo:27017/para-uma-cidade-mais-verde
-      SERVER_PORT: 8080
-```
+Inclui:
+- API Kotlin
+- MongoDB
 
 ---
 
-## Evidencias de funcionamento
+Observações
 
-### Build do projeto
-
-* Execução do comando `./gradlew build` com sucesso
-
-### Docker
-
-* Containers `mongo` e `esg-api` rodando
-
-### API funcionando
-
-* Endpoint acessível:
-  `http://localhost:8080/coletas`
-
-### Pipeline CI/CD
-
-* Execução automática via GitHub Actions
-
-*(Inserir prints aqui)*
+- MongoDB usado como banco de dados
+- API deve estar rodando para testes funcionarem
+- Porta da API: 8080
+- Porta do Mongo: 27017
 
 ---
 
-## Tecnologias utilizadas
+CI (GitHub Actions)
 
-* Java 21
-* Spring Boot
-* Spring Data MongoDB
-* MongoDB
-* Docker
-* Docker Compose
-* GitHub Actions
-* Gradle
+O pipeline automatiza:
+- Build do backend (Gradle)
+- Subida dos containers
+- Execução dos testes Maven
 
 ---
 
-## Observacoes
+Requisitos
 
-* O banco de dados utilizado foi o MongoDB local via container
-* A aplicação foi estruturada para simular ambiente de produção
-* O deploy foi realizado via containers Docker
-
----
-
-## Checklist de Entrega
-
-| Item                                                | OK |
-| --------------------------------------------------- | -- |
-| Projeto compactado em .ZIP com estrutura organizada | ☑  |
-| Dockerfile funcional                                | ☑  |
-| docker-compose.yml ou arquivos Kubernetes           | ☑  |
-| Pipeline com etapas de build, teste e deploy        | ☑  |
-| README.md com instruções e prints                   | ☑  |
-| Documentação técnica com evidências (PDF ou PPT)    | ☑  |
-| Deploy realizado nos ambientes staging e produção   | ☑  |
-
----
-# esg-api-kotlin
+- Java 21+
+- Docker + Docker Compose
+- Gradle wrapper
+- Maven
