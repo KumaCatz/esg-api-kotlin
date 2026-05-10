@@ -52,7 +52,7 @@ docker-compose up --build
 ---
 
 Acesso à API
-http://localhost:8080
+http://localhost:8080/swagger-ui/index.html#/
 
 ---
 
